@@ -2,9 +2,9 @@ name:                haskell-wordle
 version:             0.1.0.0
 github:              "githubuser/haskell-wordle"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2022 Author name here"
+author:              "Pratap Singh"
+maintainer:          "pratap at pratap dot dev"
+copyright:           "2022 Pratap Singh"
 
 extra-source-files:
 - README.md

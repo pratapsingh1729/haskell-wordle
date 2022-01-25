@@ -9,9 +9,9 @@ version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/haskell-wordle#readme>
 homepage:       https://github.com/githubuser/haskell-wordle#readme
 bug-reports:    https://github.com/githubuser/haskell-wordle/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2022 Author name here
+author:         Pratap Singh
+maintainer:     pratap at pratap dot dev
+copyright:      2022 Pratap Singh
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
