@@ -1,13 +1,9 @@
 module Main where
 
 import qualified Data.Set as Set
-import System.IO (hFlush, stdout)
-
-goal :: String
-goal = "knoll"
-
-vocab :: Set.Set String
-vocab = Set.fromList ["raise", "tough", "royal", "spine", "klick", "droll", "loyal", "knoll"]
+import System.IO
+import Data.List.Split
+import Control.Monad.Random
 
 data GuessResult = Correct | Incorrect String | Invalid
 instance Show GuessResult where
@@ -31,8 +27,8 @@ checkGuess vocab goal guess
   | guess `elem` vocab = checkValidGuess goal guess
   | otherwise = Invalid
 
-loop :: Integer -> IO ()
-loop n = 
+loop :: Set.Set String -> String -> Integer -> IO ()
+loop vocab goal n = 
   if n > 6
     then do putStrLn "Out of guesses!"
             return ()
@@ -42,9 +38,29 @@ loop n =
             let res = checkGuess vocab goal guess
             putStrLn $ (++) " Result: " $ show res
             case res of
-              Correct -> return ()
-              Incorrect s -> loop $ n + 1
-              Invalid -> loop n
+              Correct     -> return ()
+              Incorrect _ -> loop vocab goal $ n + 1
+              Invalid     -> loop vocab goal n
+
+parseVocabStr :: String -> Set.Set String
+parseVocabStr vocabStr = 
+  foldr f Set.empty $ words vocabStr
+  where f s acc = if length s == 5 then Set.insert s acc else acc
 
 main :: IO ()
-main = loop 1
+main = do
+  -- Read in vocab and pick random goal
+  handle <- openFile "vocab.txt" ReadMode
+  vocabStr <- hGetContents handle
+  let vocab = parseVocabStr vocabStr
+
+  -- https://stackoverflow.com/a/20909776
+  n <- getRandomR (0, Set.size vocab - 1)
+  let goal = Set.elemAt n vocab
+
+  putStrLn $ "Goal is " ++ goal
+
+  -- play wordle
+  putStrLn "----- Command-line Wordle -----\n    X = letter in correct spot\n    x = letter in word but wrong spot\n    _ = letter not in word\n\n"
+  loop vocab goal 1
+  hClose handle
