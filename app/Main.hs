@@ -6,6 +6,10 @@ import Data.List.Split
 import Control.Monad.Random
 import Data.Char (toLower)
 
+-- number of guesses allowed
+nGuesses :: Integer
+nGuesses = 6
+
 data GuessResult = Correct | Incorrect String | Invalid
 instance Show GuessResult where
   show Correct       = "You win!"
@@ -30,7 +34,7 @@ checkGuess vocab goal guess
 
 loop :: Set.Set String -> String -> Integer -> IO ()
 loop vocab goal n =
-  if n > 6
+  if n > nGuesses
     then do putStrLn $ "Out of guesses! The answer was " ++ goal ++ "."
             return ()
     else do putStr $ "Guess " ++ show n ++ ": "
