@@ -3,22 +3,30 @@ module Main where
 import qualified Data.Set as Set
 
 goal :: String
-goal = "raise"
+goal = "knoll"
 
-vocab :: [String]
-vocab = ["raise", "tough", "royal", "spine"]
+vocab :: Set.Set String
+vocab = Set.fromList ["raise", "tough", "royal", "spine", "klick", "droll", "loyal"]
 
-iter :: String -> String
-iter guess
-  | guess `elem` vocab = zipWith (checkLetter goal) goal guess
+checkValidGuess :: String -> String -> String
+checkValidGuess goal guess = go (Set.fromList goal) goal guess
+  where 
+    go goalChars (goalC : goalT) (guessC : guessT)
+      | goalC == guessC = 'X' : go (Set.delete guessC goalChars) goalT guessT
+      | guessC `elem` goalChars = 'x' : go (Set.delete guessC goalChars) goalT guessT
+      | otherwise = '_' : go goalChars goalT guessT
+    go _ [] [] = ""
+    go _ _ _ = "Err: non-5-letter-word " ++ guess ++ " found in vocab"
+
+
+checkGuess :: String -> String -> String
+checkGuess goal guess
+  | guess == goal = "You win!"
+  | guess `elem` vocab = checkValidGuess goal guess
   | otherwise = "Not a valid guess!"
-  where checkLetter goal goalCh guessCh
-          | goalCh == guessCh = 'X'
-          | guessCh `elem` goal = 'x'
-          | otherwise = '_'
 
 main :: IO ()
 main = do
   guess <- getLine
-  putStrLn $ iter guess
+  putStrLn $ checkGuess goal guess
   return ()
