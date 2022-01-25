@@ -10,13 +10,12 @@ vocab = ["raise", "tough", "royal", "spine"]
 
 iter :: String -> String
 iter guess
-  | guess `elem` vocab = map (checkLetter goal) $ zip goal guess
+  | guess `elem` vocab = zipWith (checkLetter goal) goal guess
   | otherwise = "Not a valid guess!"
-  where
-    checkLetter goal (goalCh, guessCh)
-      | goalCh == guessCh = 'X'
-      | guessCh `elem` goal = 'x'
-      | otherwise = '_'
+  where checkLetter goal goalCh guessCh
+          | goalCh == guessCh = 'X'
+          | guessCh `elem` goal = 'x'
+          | otherwise = '_'
 
 main :: IO ()
 main = do
