@@ -9,8 +9,14 @@ goal = "knoll"
 vocab :: Set.Set String
 vocab = Set.fromList ["raise", "tough", "royal", "spine", "klick", "droll", "loyal", "knoll"]
 
-checkValidGuess :: String -> String -> String
-checkValidGuess goal guess = go (Set.fromList goal) goal guess
+data GuessResult = Correct | Incorrect String | Invalid
+instance Show GuessResult where
+  show Correct       = "You win!"
+  show (Incorrect s) = s
+  show Invalid       = "Not a valid guess!"
+
+checkValidGuess :: String -> String -> GuessResult
+checkValidGuess goal guess = Incorrect $ go (Set.fromList goal) goal guess
   where
     go goalChars (goalC : goalT) (guessC : guessT)
       | goalC == guessC = 'X' : go (Set.delete guessC goalChars) goalT guessT
@@ -19,11 +25,11 @@ checkValidGuess goal guess = go (Set.fromList goal) goal guess
     go _ [] [] = ""
     go _ _ _ = "Err: non-5-letter-word " ++ guess ++ " found in vocab"
 
-checkGuess :: Set.Set String -> String -> String -> String
+checkGuess :: Set.Set String -> String -> String -> GuessResult
 checkGuess vocab goal guess
-  | guess == goal = "You win!"
+  | guess == goal = Correct
   | guess `elem` vocab = checkValidGuess goal guess
-  | otherwise = "Not a valid guess!"
+  | otherwise = Invalid
 
 loop :: Integer -> IO ()
 loop n = 
@@ -33,8 +39,12 @@ loop n =
     else do putStr $ "Guess " ++ show n ++ ": "
             hFlush stdout
             guess <- getLine
-            putStrLn $ " Result: " ++ checkGuess vocab goal guess
-            loop (n + 1)
+            let res = checkGuess vocab goal guess
+            putStrLn $ (++) " Result: " $ show res
+            case res of
+              Correct -> return ()
+              Incorrect s -> loop $ n + 1
+              Invalid -> loop n
 
 main :: IO ()
 main = loop 1
