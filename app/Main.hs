@@ -46,26 +46,31 @@ loop vocab goal n =
               Incorrect _ -> loop vocab goal $ n + 1
               Invalid     -> loop vocab goal n
 
-parseVocabStr :: String -> Set.Set String
-parseVocabStr vocabStr =
-  foldr f Set.empty $ words vocabStr
+parseVocabStr :: Set.Set String -> String -> Set.Set String
+parseVocabStr startSet vocabStr =
+  foldr f startSet $ words vocabStr
   where f s acc = if length s == 5 then Set.insert (map toLower s) acc else acc
 
 main :: IO ()
 main = do
   -- Read in vocab and pick random goal
   -- vocab.txt taken from https://gist.github.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b
-  handle <- openFile "vocab.txt" ReadMode
-  vocabStr <- hGetContents handle
-  let vocab = parseVocabStr vocabStr
+  ansHandle <- openFile "wordle-answers.txt" ReadMode
+  ansStr <- hGetContents ansHandle
+  let ansSet = parseVocabStr Set.empty ansStr
 
   -- https://stackoverflow.com/a/20909776
-  n <- getRandomR (0, Set.size vocab - 1)
-  let goal = Set.elemAt n vocab
+  n <- getRandomR (0, Set.size ansSet - 1)
+  let goal = Set.elemAt n ansSet
+
+  allowedHandle <- openFile "wordle-allowed-guesses.txt" ReadMode
+  allowedStr <- hGetContents allowedHandle
+  let vocab = parseVocabStr ansSet allowedStr
 
   -- putStrLn $ "Goal is " ++ goal
 
   -- play wordle
   putStrLn "----- Command-line Wordle -----\n    X = letter in correct spot\n    x = letter in word but wrong spot\n    _ = letter not in word\n\n"
   loop vocab goal 1
-  hClose handle
+  hClose ansHandle
+  hClose allowedHandle
